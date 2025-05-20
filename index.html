@@ -1,135 +1,116 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Scroll Animation + Full Page</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: sans-serif;
-      background: #111;
-      color: white;
-      overflow-x: hidden;
-    }
-
-    section {
-      min-height: 100vh;
-      padding: 60px;
-      border-bottom: 2px solid #222;
-    }
-
-    h1, p {
-      max-width: 800px;
-      margin: auto;
-    }
-
-    /* Fixed animation layer */
-    #scroll-sequence {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      z-index: -1; /* behind content */
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: #000;
-      pointer-events: none;
-    }
-
-    #frame {
-      width: min(80vw, 800px);
-      max-width: 100%;
-      display: none;
-      transition: transform 0.2s ease-out;
-      opacity: 0.15; /* transparent background effect */
-      mix-blend-mode: screen; /* optional for glow effect */
-    }
-
-    #loading {
-      color: white;
-      font-size: 1.2rem;
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Scroll Animation in Div Example</title>
+<style>
+  body {
+    margin: 0;
+    background: #111;
+    color: #eee;
+    font-family: monospace, monospace;
+  }
+  /* Simulated lines for title/body/footer */
+  .line {
+    height: 20px;
+    width: 80%;
+    background: #333;
+    margin: 12px auto;
+    border-radius: 4px;
+  }
+  .title-line {
+    height: 30px;
+    width: 60%;
+    background: #555;
+    margin: 30px auto 20px auto;
+  }
+  .footer-line {
+    height: 18px;
+    width: 50%;
+    background: #222;
+    margin: 20px auto 40px auto;
+  }
+  /* Container for animation */
+  #animation-container {
+    width: 80vw;
+    max-width: 600px;
+    height: 350px;
+    margin: 60px auto;
+    background: #000;
+    border-radius: 12px;
+    box-shadow: 0 0 15px #00ffddaa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  #animation-frame {
+    max-width: 100%;
+    max-height: 100%;
+    user-select: none;
+    pointer-events: none;
+  }
+</style>
 </head>
 <body>
 
-  <!-- Scroll Animation Layer (Always Running) -->
-  <div id="scroll-sequence">
-    <span id="loading">Loading animation...</span>
-    <img id="frame" src="" alt="scroll animation frame">
+  <!-- Simulated title lines -->
+  <div class="title-line"></div>
+  <div class="line"></div>
+  <div class="line"></div>
+  <div class="line"></div>
+
+  <!-- Animation container in the middle -->
+  <div id="animation-container">
+    <img id="animation-frame" alt="scroll animation frame" src="" />
   </div>
 
-  <!-- Main Page Content -->
-  <section>
-    <h1>Welcome to the Sample Page</h1>
-    <p>This is the first section of your site. Scroll to see the animation behind you subtly change as you move through the site.</p>
-  </section>
+  <!-- Simulated body lines -->
+  <div class="line"></div>
+  <div class="line"></div>
+  <div class="line"></div>
+  <div class="line"></div>
+  <div class="line"></div>
+  <div class="line"></div>
 
-  <section>
-    <h1>About</h1>
-    <p>This is a scroll-driven background animation using image sequences. The animation plays based on your scroll position, looping forever. You can place any content you want in these sections.</p>
-  </section>
+  <!-- Simulated footer -->
+  <div class="footer-line"></div>
 
-  <section>
-    <h1>More Content</h1>
-    <p>Keep scrolling to see more animation play out. This approach allows both immersive design and full interactivity.</p>
-  </section>
+<script>
+  const FRAME_COUNT = 90;
+  const pad = n => String(n).padStart(4, '0');
+  const img = document.getElementById('animation-frame');
+  const images = [];
+  let loadedCount = 0;
 
-  <section>
-    <h1>End Section</h1>
-    <p>Thanks for visiting! You can now use this structure as a foundation for your scroll-animated site with full content control.</p>
-  </section>
-
-  <script>
-    const FRAME_COUNT = 90;
-    const pad = n => String(n).padStart(4, '0');
-    const imgTag = document.getElementById('frame');
-    const loadingText = document.getElementById('loading');
-
-    const images = [];
-    let allLoaded = 0;
-
-    // Preload frames
-    for (let i = 0; i < FRAME_COUNT; i++) {
-      const img = new Image();
-      img.src = `${pad(i + 1)}.png`;
-      img.onload = () => {
-        allLoaded++;
-        if (allLoaded === FRAME_COUNT) {
-          loadingText.style.display = 'none';
-          imgTag.style.display = 'block';
-          updateFrame(); // Initial frame
-          window.addEventListener('scroll', updateFrame);
-        }
-      };
-      images.push(img);
-    }
-
-    function updateFrame() {
-      const scrollY = window.scrollY;
-      const totalScroll = document.body.scrollHeight - window.innerHeight;
-
-      const scrollFraction = scrollY / totalScroll;
-
-      // Loop 3x over the whole scroll range
-      const frameIndex = Math.floor(scrollFraction * FRAME_COUNT * 3) % FRAME_COUNT;
-
-      if (images[frameIndex]) {
-        imgTag.src = images[frameIndex].src;
-
-        // Optional slight scale effect
-        const scale = 1 + ((scrollFraction * 3) % 1) * 0.05;
-        imgTag.style.transform = `scale(${scale})`;
+  // Preload all images (assuming in root repo folder)
+  for(let i = 0; i < FRAME_COUNT; i++) {
+    const image = new Image();
+    image.src = `${pad(i + 1)}.png`; // Adjust extension if needed
+    image.onload = () => {
+      loadedCount++;
+      if (loadedCount === FRAME_COUNT) {
+        requestAnimationFrame(updateFrame); // start loop after loading
       }
     }
-  </script>
+    images.push(image);
+  }
+
+  function updateFrame() {
+    // Scroll progress (0 to 1)
+    const scrollTop = window.scrollY;
+    const maxScroll = document.body.scrollHeight - window.innerHeight;
+    const scrollFraction = maxScroll === 0 ? 0 : scrollTop / maxScroll;
+
+    // Loop animation 4 times during full scroll (adjust as needed)
+    const frameIndex = Math.floor((scrollFraction * FRAME_COUNT * 4)) % FRAME_COUNT;
+
+    img.src = images[frameIndex].src;
+
+    // Keep updating on next animation frame (loop forever)
+    requestAnimationFrame(updateFrame);
+  }
+</script>
+
 </body>
 </html>
