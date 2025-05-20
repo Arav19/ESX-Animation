@@ -2,58 +2,65 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Scroll Animation</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Scroll-Driven PNG Sequence</title>
+
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
+    /* --- RESET ---------------------------------------------------------- */
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+
+    /* --- PAGE ----------------------------------------------------------- */
+    body{
+      background:#000;               /* solid dark theme                  */
+      height:6000px;                 /* tall page so you can scroll       */
+      font-family:sans-serif;        /* (never actually shown)            */
     }
-    body {
-      background-color: #000;
-      color: #fff;
-      height: 5000px; /* make the page tall enough to scroll */
-      overflow-y: scroll;
+
+    /* --- CENTRED IMAGE -------------------------------------------------- */
+    #seq{
+      position:fixed;                /* stays centred while page scrolls  */
+      top:50%; left:50%;
+      transform:translate(-50%,-50%);
+      pointer-events:none;           /* so the wheel scroll always works  */
     }
-    #image-sequence {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      pointer-events: none;
-    }
-    #image-sequence img {
-      width: 600px;
-      max-width: 90vw;
+    #seq img{
+      width:min(70vw,700px);         /* responsive sizing                 */
+      display:block;
     }
   </style>
 </head>
 <body>
 
-  <div id="image-sequence">
-    <img id="frame" src="frames/0001.png" alt="animation frame">
+  <!-- centred sequence -->
+  <div id="seq">
+    <img id="frame" src="0001.png" alt="scroll animation frame">
   </div>
 
   <script>
-    const frameCount = 90;
-    const frame = document.getElementById("frame");
+    /* ---------- CONFIG -------------------------------------------------- */
+    const FRAME_COUNT = 90;                       // total PNGs (0001-0090)
+    const pad = n => String(n).padStart(4,'0');   // zero-pad helper
 
-    const currentFrame = index => `frames/${String(index).padStart(4, '0')}.png`;
+    /* ---------- PRELOAD (optional but smoother) ------------------------ */
+    const imgs = [];
+    for(let i=1;i<=FRAME_COUNT;i++){              // create Image objects
+      const img = new Image();
+      img.src = `${pad(i)}.png`;                  // root-level path
+      imgs.push(img);
+    }
 
-    const updateImage = () => {
-      const scrollTop = window.scrollY;
-      const maxScroll = document.body.scrollHeight - window.innerHeight;
-      const scrollFraction = scrollTop / maxScroll;
-      const frameIndex = Math.min(
-        frameCount - 1,
-        Math.floor(scrollFraction * frameCount)
-      ) + 1;
-
-      frame.src = currentFrame(frameIndex);
+    /* ---------- SCROLL HANDLER ---------------------------------------- */
+    const imgTag   = document.getElementById('frame');
+    const change   = () => {
+      const max     = document.body.scrollHeight - innerHeight;
+      const frac    = Math.min(1, Math.max(0, scrollY / max));   // 0-1
+      const idx     = 1 + Math.round(frac * (FRAME_COUNT-1));    // 1-90
+      imgTag.src    = `${pad(idx)}.png`;
     };
 
-    window.addEventListener("scroll", updateImage);
+    addEventListener('scroll', change, {passive:true});
+    /* call once on load in case the page is not at top */
+    change();
   </script>
 
 </body>
