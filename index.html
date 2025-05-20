@@ -3,43 +3,28 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Scroll Animation in Div Example</title>
+<title>Minimal Scroll Animation Proof</title>
 <style>
   body {
     margin: 0;
-    background: #111;
-    color: #eee;
     font-family: monospace, monospace;
+    background: #fff;
+    color: #000;
   }
-  /* Simulated lines for title/body/footer */
+  /* Simple grey bars simulating text lines */
   .line {
-    height: 20px;
     width: 80%;
-    background: #333;
-    margin: 12px auto;
-    border-radius: 4px;
-  }
-  .title-line {
-    height: 30px;
-    width: 60%;
-    background: #555;
-    margin: 30px auto 20px auto;
-  }
-  .footer-line {
-    height: 18px;
-    width: 50%;
-    background: #222;
-    margin: 20px auto 40px auto;
+    height: 20px;
+    background: #ccc;
+    margin: 20px auto;
   }
   /* Container for animation */
   #animation-container {
-    width: 80vw;
+    width: 80%;
     max-width: 600px;
     height: 350px;
-    margin: 60px auto;
-    background: #000;
-    border-radius: 12px;
-    box-shadow: 0 0 15px #00ffddaa;
+    margin: 300px auto; /* big margin top and bottom so plenty of scroll */
+    background: #eee;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -54,27 +39,34 @@
 </head>
 <body>
 
-  <!-- Simulated title lines -->
-  <div class="title-line"></div>
+  <!-- Simulated lines before animation -->
+  <div class="line"></div>
+  <div class="line"></div>
+  <div class="line"></div>
+  <div class="line"></div>
+  <div class="line"></div>
+  <div class="line"></div>
+  <div class="line"></div>
   <div class="line"></div>
   <div class="line"></div>
   <div class="line"></div>
 
-  <!-- Animation container in the middle -->
+  <!-- Animation container in middle -->
   <div id="animation-container">
     <img id="animation-frame" alt="scroll animation frame" src="" />
   </div>
 
-  <!-- Simulated body lines -->
+  <!-- Simulated lines after animation -->
   <div class="line"></div>
   <div class="line"></div>
   <div class="line"></div>
   <div class="line"></div>
   <div class="line"></div>
   <div class="line"></div>
-
-  <!-- Simulated footer -->
-  <div class="footer-line"></div>
+  <div class="line"></div>
+  <div class="line"></div>
+  <div class="line"></div>
+  <div class="line"></div>
 
 <script>
   const FRAME_COUNT = 90;
@@ -83,31 +75,29 @@
   const images = [];
   let loadedCount = 0;
 
-  // Preload all images (assuming in root repo folder)
+  // Preload images assuming named 0001.png to 0090.png in repo root
   for(let i = 0; i < FRAME_COUNT; i++) {
     const image = new Image();
-    image.src = `${pad(i + 1)}.png`; // Adjust extension if needed
+    image.src = `${pad(i + 1)}.png`;
     image.onload = () => {
       loadedCount++;
-      if (loadedCount === FRAME_COUNT) {
-        requestAnimationFrame(updateFrame); // start loop after loading
+      if(loadedCount === FRAME_COUNT) {
+        requestAnimationFrame(updateFrame);
       }
     }
     images.push(image);
   }
 
   function updateFrame() {
-    // Scroll progress (0 to 1)
     const scrollTop = window.scrollY;
     const maxScroll = document.body.scrollHeight - window.innerHeight;
     const scrollFraction = maxScroll === 0 ? 0 : scrollTop / maxScroll;
 
-    // Loop animation 4 times during full scroll (adjust as needed)
-    const frameIndex = Math.floor((scrollFraction * FRAME_COUNT * 4)) % FRAME_COUNT;
+    // Loop 4 times per full scroll length
+    const frameIndex = Math.floor(scrollFraction * FRAME_COUNT * 4) % FRAME_COUNT;
 
     img.src = images[frameIndex].src;
 
-    // Keep updating on next animation frame (loop forever)
     requestAnimationFrame(updateFrame);
   }
 </script>
