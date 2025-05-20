@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Looping Scroll Animation</title>
+  <title>Scroll Animation Loop</title>
   <style>
     *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
     body {
@@ -37,10 +37,16 @@
       justify-content: center;
     }
 
-    #scroll-sequence img {
+    #frame {
       width: min(80vw, 800px);
       max-width: 100%;
       transition: transform 0.2s ease-out;
+    }
+
+    #loading {
+      position: absolute;
+      color: white;
+      font-size: 1.2rem;
     }
   </style>
 </head>
@@ -53,7 +59,8 @@
   <!-- SCROLL SEQUENCE -->
   <div id="scroll-wrapper">
     <div id="scroll-sequence">
-      <img id="frame" src="0001.png" alt="scroll animation frame">
+      <span id="loading">Loading...</span>
+      <img id="frame" src="" alt="scroll animation frame" style="display: none;">
     </div>
   </div>
 
@@ -65,46 +72,50 @@
     const FRAME_COUNT = 90;
     const pad = n => String(n).padStart(4, '0');
 
-    // Preload all frames
-    const imgs = [];
-    for (let i = 1; i <= FRAME_COUNT; i++) {
+    const imgTag = document.getElementById('frame');
+    const loadingText = document.getElementById('loading');
+    const wrapper = document.getElementById('scroll-wrapper');
+
+    let imgs = [];
+    let loadedImages = 0;
+
+    // Preload all images
+    for (let i = 0; i < FRAME_COUNT; i++) {
       const img = new Image();
-      img.src = `${pad(i)}.png`;
+      img.src = `${pad(i + 1)}.png`;
+      img.onload = () => {
+        loadedImages++;
+        if (loadedImages === FRAME_COUNT) {
+          // All images loaded, start animation
+          loadingText.style.display = 'none';
+          imgTag.style.display = 'block';
+          window.addEventListener('scroll', updateFrame, { passive: true });
+          window.addEventListener('resize', updateFrame);
+          updateFrame();
+        }
+      };
       imgs.push(img);
     }
-
-    const imgTag = document.getElementById('frame');
-    const wrapper = document.getElementById('scroll-wrapper');
 
     function updateFrame() {
       const scrollTop = window.scrollY;
       const wrapperTop = wrapper.offsetTop;
       const wrapperHeight = wrapper.offsetHeight;
 
-      // How far the scroll is inside the wrapper
       const scrollInside = scrollTop - wrapperTop;
       const totalScrollable = wrapperHeight - window.innerHeight;
 
-      // Scroll progress as 0 to 1
       let progress = scrollInside / totalScrollable;
-
-      // Allow animation even before/after it's fully in view
-      // Clamp but also allow negative or over 1 to loop
       if (progress < 0) progress = 0;
       if (progress > 1.5) progress = 1.5;
 
-      // Loop: wrap the frame index
       const frameIndex = Math.floor((progress * FRAME_COUNT)) % FRAME_COUNT;
-      imgTag.src = `${pad(frameIndex)}.png`;
+      imgTag.src = imgs[frameIndex].src;
 
-      // Optional: zoom for extra drama
+      // Optional zoom for effect
       const zoom = 1 + (progress % 1) * 0.1;
       imgTag.style.transform = `scale(${zoom})`;
     }
-
-    window.addEventListener('scroll', updateFrame, { passive: true });
-    window.addEventListener('resize', updateFrame);
-    updateFrame();
   </script>
 </body>
 </html>
