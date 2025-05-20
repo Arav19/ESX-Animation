@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Minimal Scroll Animation (Dark Mode)</title>
+  <title>Minimal Scroll Animation (Dark Mode - Large Scale)</title>
   <style>
     body {
       margin: 0;
@@ -20,9 +20,8 @@
     }
 
     #animation-container {
-      width: 80%;
-      max-width: 600px;
-      height: 350px;
+      width: 100%;
+      height: 80vh; /* Makes it take up most of the screen height */
       margin: 300px auto;
       background: transparent;
       display: flex;
@@ -31,8 +30,9 @@
     }
 
     #animation-frame {
-      max-width: 100%;
-      max-height: 100%;
+      width: 100%;
+      height: 100%;
+      object-fit: contain; /* Keep aspect ratio, fill space */
       user-select: none;
       pointer-events: none;
     }
@@ -76,7 +76,6 @@
     const images = [];
     let loadedCount = 0;
 
-    // Preload frames
     for (let i = 0; i < FRAME_COUNT; i++) {
       const image = new Image();
       image.src = `${pad(i + 1)}.png`;
@@ -94,7 +93,6 @@
       const maxScroll = document.body.scrollHeight - window.innerHeight;
       const scrollFraction = maxScroll === 0 ? 0 : scrollTop / maxScroll;
 
-      // Loop 2 times per scroll for smoother playback
       const frameIndex = Math.floor(scrollFraction * FRAME_COUNT * 2) % FRAME_COUNT;
 
       img.src = images[frameIndex].src;
