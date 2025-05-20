@@ -3,118 +3,104 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Scroll Animation Loop</title>
+  <title>Always Scrolling Frame Animation</title>
   <style>
-    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
     body {
-      font-family: sans-serif;
-      background: #111;
-      color: #fff;
-    }
-
-    section {
-      padding: 100px 20px;
-      border-bottom: 1px solid #333;
-    }
-
-    .spacer-line {
-      height: 100px;
-      border-bottom: 1px dashed #444;
-      margin: 40px 0;
-    }
-
-    /* === SCROLL SEQUENCE === */
-    #scroll-wrapper {
-      height: 150vh; /* Extended scroll area */
+      margin: 0;
       background: #000;
+      font-family: sans-serif;
+      color: white;
+    }
+
+    .spacer {
+      height: 100vh;
+      border-bottom: 2px dashed #333;
     }
 
     #scroll-sequence {
-      position: relative;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
       height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
+      z-index: 10;
+      pointer-events: none;
+      background: #000;
     }
 
     #frame {
       width: min(80vw, 800px);
       max-width: 100%;
-      transition: transform 0.2s ease-out;
+      display: none;
+      transition: transform 0.1s ease-out;
     }
 
     #loading {
-      position: absolute;
-      color: white;
       font-size: 1.2rem;
     }
   </style>
 </head>
 <body>
 
-  <!-- TOP CONTENT -->
-  <section><div class="spacer-line"></div></section>
-  <section><div class="spacer-line"></div></section>
+  <!-- Spacer Content Above -->
+  <div class="spacer"></div>
+  <div class="spacer"></div>
 
-  <!-- SCROLL SEQUENCE -->
-  <div id="scroll-wrapper">
-    <div id="scroll-sequence">
-      <span id="loading">Loading...</span>
-      <img id="frame" src="" alt="scroll animation frame" style="display: none;">
-    </div>
+  <!-- Scroll Sequence Overlay -->
+  <div id="scroll-sequence">
+    <span id="loading">Loading...</span>
+    <img id="frame" src="" alt="scroll animation frame">
   </div>
 
-  <!-- BOTTOM CONTENT -->
-  <section><div class="spacer-line"></div></section>
-  <section><div class="spacer-line"></div></section>
+  <!-- Spacer Content Below -->
+  <div class="spacer"></div>
+  <div class="spacer"></div>
 
   <script>
     const FRAME_COUNT = 90;
     const pad = n => String(n).padStart(4, '0');
-
     const imgTag = document.getElementById('frame');
     const loadingText = document.getElementById('loading');
-    const wrapper = document.getElementById('scroll-wrapper');
 
-    let imgs = [];
-    let loadedImages = 0;
+    const images = [];
+    let allLoaded = 0;
 
     // Preload all images
     for (let i = 0; i < FRAME_COUNT; i++) {
       const img = new Image();
       img.src = `${pad(i + 1)}.png`;
       img.onload = () => {
-        loadedImages++;
-        if (loadedImages === FRAME_COUNT) {
-          // All images loaded, start animation
+        allLoaded++;
+        if (allLoaded === FRAME_COUNT) {
           loadingText.style.display = 'none';
           imgTag.style.display = 'block';
-          window.addEventListener('scroll', updateFrame, { passive: true });
-          window.addEventListener('resize', updateFrame);
-          updateFrame();
+          updateFrame(); // First frame
+          window.addEventListener('scroll', updateFrame);
         }
       };
-      imgs.push(img);
+      images.push(img);
     }
 
     function updateFrame() {
-      const scrollTop = window.scrollY;
-      const wrapperTop = wrapper.offsetTop;
-      const wrapperHeight = wrapper.offsetHeight;
+      const scrollY = window.scrollY;
+      const totalScroll = document.body.scrollHeight - window.innerHeight;
 
-      const scrollInside = scrollTop - wrapperTop;
-      const totalScrollable = wrapperHeight - window.innerHeight;
+      // Use full scroll range to map to looping frames
+      const scrollFraction = scrollY / totalScroll;
 
-      let progress = scrollInside / totalScrollable;
-      if (progress < 0) progress = 0;
-      if (progress > 1.5) progress = 1.5;
+      // Calculate frame index with loop
+      const frameIndex = Math.floor(scrollFraction * FRAME_COUNT * 3) % FRAME_COUNT;
 
-      const frameIndex = Math.floor((progress * FRAME_COUNT)) % FRAME_COUNT;
-      imgTag.src = imgs[frameIndex].src;
+      if (images[frameIndex]) {
+        imgTag.src = images[frameIndex].src;
 
-      // Optional zoom for effect
-      const zoom = 1 + (progress % 1) * 0.1;
-      imgTag.style.transform = `scale(${zoom})`;
+        // Optional zoom effect
+        const zoom = 1 + ((scrollFraction * 3) % 1) * 0.1;
+        imgTag.style.transform = `scale(${zoom})`;
+      }
     }
   </script>
 </body>
